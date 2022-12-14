@@ -1,16 +1,14 @@
-# This is a sample Python script.
+from Box import Box
+from Field import Field
+from Visualization import show
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+box = Box(1, 2)
+field = Field(10, 10)
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    field.add_box(box)
+    field.add_box(Box(2, 3))
+    field.add_box(Box(2, 3))
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    print(field.map)
+    show()
