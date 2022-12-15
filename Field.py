@@ -1,4 +1,5 @@
 import Box
+import numpy as np
 
 
 class Field:
@@ -28,3 +29,13 @@ class Field:
                 return current_h
             else:
                 current_h = current_h - 1
+
+    def get_snapshot(self):
+        snapshot = np.zeros((self.x, 1, self.h), dtype=bool)
+
+        for h in self.map:
+            for a in self.map[h]:
+                snapshot[2, 0, h] = True
+
+        return snapshot
+

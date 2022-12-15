@@ -10,5 +10,4 @@ if __name__ == '__main__':
     field.add_box(Box(2, 3))
     field.add_box(Box(2, 3))
 
-    print(field.map)
-    show()
+    show(field.get_snapshot())
