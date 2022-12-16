@@ -1,4 +1,4 @@
-import Box
+import Figure
 import numpy as np
 
 
@@ -7,20 +7,21 @@ class Field:
         self.map = np.zeros((x, y, height), bool)
         self.height = height
 
-    def add_box(self, box: Box):
-        box_map = self.get_box_map(box)
+    def add_figure(self, figure: Figure, position: tuple[int, int] = (0, 0)):
+        box_map = self.__get_box_map(figure, position)
         self.map = self.map | box_map
         return self.map
 
-    def get_box_map(self, box: Box):
+    def __get_box_map(self, figure: Figure, position: tuple[int, int]):
+        x, y = position
         current_height = self.height - 1
-        box_map = self.get_shift((0, 0, current_height), box)
-        while not self.is_intersect(box_map, current_height-1):
+        box_map = self.__get_shift((x, y, current_height), figure)
+        while not self.__is_intersect(box_map, current_height - 1):
             current_height = current_height - 1
-            box_map = self.get_shift((0, 0, current_height), box)
+            box_map = self.__get_shift((x, y, current_height), figure)
         return box_map
 
-    def is_intersect(self, box: np.ndarray, h: int):
+    def __is_intersect(self, box: np.ndarray, h: int):
         if h == -1:
             return True
 
@@ -28,7 +29,7 @@ class Field:
         h_box_slice = box[:, :, h+1]
         return np.any(h_map_slice & h_box_slice)
 
-    def get_shift(self, shift: tuple[int, int, int], box: Box):
+    def __get_shift(self, shift: tuple[int, int, int], box: Figure):
         x1, y1, h1 = shift
         x, y, h = np.indices(self.map.shape)
         xs = (x1 <= x) & (x < box.x + x1)

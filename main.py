@@ -1,13 +1,12 @@
-import numpy as np
-
-from Box import Box
 from Field import Field
+from Figure import Figure
 from Visualization import show
 
 if __name__ == '__main__':
-    field = Field(4, 6, 6)
-    field.add_box(Box(2, 2, 1))
-    field.add_box(Box(2, 5, 2))
-    field.add_box(Box(1, 1, 1))
-    field.add_box(Box(2, 2, 2))
+    field = Field(5, 6, 6)
+    field.add_figure(Figure(2, 2, 1), (2, 1))
+    field.add_figure(Figure(2, 5, 2))
+    field.add_figure(Figure(1, 1, 1))
+    field.add_figure(Figure(2, 2, 2))
+    field.add_figure(Figure(2, 2, 2), (3, 2))
     show(field.map)
