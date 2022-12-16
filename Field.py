@@ -3,39 +3,35 @@ import numpy as np
 
 
 class Field:
-    map = {}
-
-    def __init__(self, x: int, h: int):
-        self.x = x
-        self.h = h
-        for i in range(h):
-            self.map[i] = []
-
-    # def __init__(self, x: int, y: int, h: int):
-    #     self.x = x
-    #     self.y = y
-    #     self.h = h
+    def __init__(self, x: int, y: int, height: int):
+        self.map = np.zeros((x, y, height), bool)
+        self.height = height
 
     def add_box(self, box: Box):
-        if len(self.map[self.h - 1]) > 0:
-            return
-        h = self.get_height()
-        self.map[h].append(box)
+        box_map = self.get_box_map(box)
+        self.map = self.map | box_map
+        return self.map
 
-    def get_height(self):
-        current_h = self.h
-        while True:
-            if current_h == 0 or len(self.map[current_h - 1]) > 0:
-                return current_h
-            else:
-                current_h = current_h - 1
+    def get_box_map(self, box: Box):
+        current_height = self.height - 1
+        box_map = self.get_shift((0, 0, current_height), box)
+        while not self.is_intersect(box_map, current_height-1):
+            current_height = current_height - 1
+            box_map = self.get_shift((0, 0, current_height), box)
+        return box_map
 
-    def get_snapshot(self):
-        snapshot = np.zeros((self.x, 1, self.h), dtype=bool)
+    def is_intersect(self, box: np.ndarray, h: int):
+        if h == -1:
+            return True
 
-        for h in self.map:
-            for a in self.map[h]:
-                snapshot[2, 0, h] = True
+        h_map_slice = self.map[:, :, h]
+        h_box_slice = box[:, :, h+1]
+        return np.any(h_map_slice & h_box_slice)
 
-        return snapshot
-
+    def get_shift(self, shift: tuple[int, int, int], box: Box):
+        x1, y1, h1 = shift
+        x, y, h = np.indices(self.map.shape)
+        xs = (x1 <= x) & (x < box.x + x1)
+        ys = (y1 <= y) & (y < box.y + y1)
+        hs = (h1 <= h) & (h < box.h + h1)
+        return np.ndarray(self.map.shape, buffer=xs & ys & hs, dtype=bool)
