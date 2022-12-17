@@ -8,8 +8,8 @@ def show(data: np.ndarray):
     ax.voxels(data, edgecolors=edge_colors)
     ax.set_aspect('equal')
 
-    ax.set(xlabel='x')
-    ax.set(ylabel='y')
-    ax.set(zlabel='h')
+    ax.set(xlabel='width')
+    ax.set(ylabel='depth')
+    ax.set(zlabel='height')
 
     plt.show()
