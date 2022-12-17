@@ -5,7 +5,7 @@ import numpy as np
 class Field:
     def __init__(self, width: int, depth: int, height: int):
         self.map = np.zeros((width, depth, height), bool)
-        self._field_height = height
+        self._height = height
 
     def add_figure(self, figure: Figure, position: tuple[int, int] = (0, 0)):
         final_figure_map = self._get_final_figure_map(figure, position)
@@ -15,7 +15,7 @@ class Field:
     def _get_final_figure_map(self, figure: Figure, position: tuple[int, int]):
         width, depth = position
 
-        for height in range(self._field_height - 1, -1, -1):
+        for height in range(self._height - 1, -1, -1):
             figure_map = self._get_shift_map((width, depth, height), figure)
             if self._is_before_field_intersect(figure_map, height):
                 return figure_map
