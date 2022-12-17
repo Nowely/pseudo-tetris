@@ -19,7 +19,7 @@ def show(data: np.ndarray):
     plt.show()
 
 
-def show_gif(slices: list[np.ndarray]):
+def show_gif(slices: list[np.ndarray], interval: int = 200):
     def update_plot(num):
         ax.clear()
         configure_plot(ax)
@@ -31,8 +31,7 @@ def show_gif(slices: list[np.ndarray]):
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
 
-    ani = animation.FuncAnimation(fig, update_plot, interval=350, frames=len(slices))
-
+    ani = animation.FuncAnimation(fig, update_plot, interval=interval, frames=len(slices))
     plt.show()
 
     return ani

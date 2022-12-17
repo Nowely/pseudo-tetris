@@ -3,6 +3,8 @@ import numpy as np
 
 
 class Field:
+    slices: list[np.ndarray] = []
+
     def __init__(self, width: int, depth: int, height: int):
         self.map = np.zeros((width, depth, height), bool)
         self._height = height
@@ -10,7 +12,6 @@ class Field:
     def add_figure(self, figure: Figure, position: tuple[int, int] = (0, 0)):
         final_figure_map = self._get_final_figure_map(figure, position)
         self.map |= final_figure_map
-        return self.map
 
     def _get_final_figure_map(self, figure: Figure, position: tuple[int, int]):
         width, depth = position
@@ -31,11 +32,13 @@ class Field:
         shift_map = width_map & depth_map & height_map
         return np.ndarray(self.map.shape, bool, shift_map)
 
-    def _is_before_field_intersect(self, box: np.ndarray, height: int):
+    def _is_before_field_intersect(self, figure_map: np.ndarray, height: int):
         if height == 0:
             return True
 
-        figure_slice = box[:, :, height]
+        figure_slice = figure_map[:, :, height]
         field_slice = self.map[:, :, height - 1]
+
+        self.slices.append(figure_map | self.map)
 
         return np.any(field_slice & figure_slice)
