@@ -1,13 +1,27 @@
-import Figure
+from Figure import Figure
 import numpy as np
 
 
 class Field:
+    map: np.ndarray
+    "3d boolean array of a final field state."
+
     slices: list[np.ndarray] = []
+    "List of 3d boolean array. Represent each slice of a map state. Used for animation."
 
     def __init__(self, width: int, depth: int, height: int):
         self.map = np.zeros((width, depth, height), bool)
         self._height = height
+
+    def add_random_figure(self):
+        width, depth, height = self.map.shape
+        r_width, r_depth, r_height = np.random.randint(1, [
+            round(width / 2) + 1, round(depth / 2) + 1, round(height / 2) + 1
+        ])
+        self.add_figure(
+            Figure(r_width, r_depth, r_height),
+            (np.random.randint(width), np.random.randint(height))
+        )
 
     def add_figure(self, figure: Figure, position: tuple[int, int] = (0, 0)):
         final_figure_map = self._get_final_figure_map(figure, position)
@@ -33,12 +47,12 @@ class Field:
         return np.ndarray(self.map.shape, bool, shift_map)
 
     def _is_before_field_intersect(self, figure_map: np.ndarray, height: int):
+        self.slices.append(figure_map | self.map)
+
         if height == 0:
             return True
 
         figure_slice = figure_map[:, :, height]
         field_slice = self.map[:, :, height - 1]
-
-        self.slices.append(figure_map | self.map)
 
         return np.any(field_slice & figure_slice)
