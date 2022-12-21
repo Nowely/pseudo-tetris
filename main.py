@@ -14,6 +14,8 @@ def show_small_field():
     field.add_figure(Figure(2, 2, 2))
     field.add_figure(Figure(2, 2, 2), (3, 2))
     field.add_figure(Figure(1, 1, 3), (4, 1))
+    field.add_figure(Figure(1, 1, 1), (1, 0))
+    field.add_figure(Figure(1, 2, 1), (4, 2))
 
     # Show plot with added figures
     show(field.map)
