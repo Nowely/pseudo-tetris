@@ -18,15 +18,18 @@ class Field:
         r_width, r_depth, r_height = np.random.randint(1, [
             round(width / 2) + 1, round(depth / 2) + 1, round(height / 2) + 1
         ])
-        self.add_figure(
+        return self.add_figure(
             Figure(r_width, r_depth, r_height),
             (np.random.randint(width), np.random.randint(height))
         )
 
     def add_figure(self, figure: Figure, position: tuple[int, int] = (0, 0)):
-        final_figure_map = self._get_final_figure_map(figure, position)
+        """Return height of added figure position. If -1 then figure is not added."""
+
+        [final_figure_map, height] = self._get_final_figure_map(figure, position)
         self.map |= final_figure_map
         self.slices.append(self.map)
+        return height
 
     def _get_final_figure_map(self, figure: Figure, position: tuple[int, int]):
         width, depth = position
@@ -34,8 +37,8 @@ class Field:
         figure_map = np.zeros(self.map.shape, bool)
         for height in range(self._height):
             if not self._is_intersect(height, figure, position):
-                return figure.get_expanded_map(self.map.shape, position=(width, depth, height))
-        return figure_map
+                return [figure.get_expanded_map(self.map.shape, position=(width, depth, height)), height]
+        return [figure_map, -1]
 
     def _is_intersect(self, height: int, figure, position: tuple[int, int]):
         if height == -1:
