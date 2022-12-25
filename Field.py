@@ -26,6 +26,7 @@ class Field:
     def add_figure(self, figure: Figure, position: tuple[int, int] = (0, 0)):
         final_figure_map = self._get_final_figure_map(figure, position)
         self.map |= final_figure_map
+        self.slices.append(self.map)
 
     def _get_final_figure_map(self, figure: Figure, position: tuple[int, int]):
         width, depth = position
@@ -33,19 +34,8 @@ class Field:
         figure_map = np.zeros(self.map.shape, bool)
         for height in range(self._height):
             if not self._is_intersect(height, figure, position):
-                return self._get_shift_map((width, depth, height), figure)
+                return figure.get_expanded_map(self.map.shape, position=(width, depth, height))
         return figure_map
-
-    def _get_shift_map(self, shift: tuple[int, int, int], figure: Figure):
-        width, depth, height = np.indices(self.map.shape)
-        shift_width, shift_depth, height_shift = shift
-
-        width_map = (shift_width <= width) & (width < figure.width + shift_width)
-        depth_map = (shift_depth <= depth) & (depth < figure.depth + shift_depth)
-        height_map = (height_shift <= height) & (height < figure.height + height_shift)
-
-        shift_map = width_map & depth_map & height_map
-        return np.ndarray(self.map.shape, bool, shift_map)
 
     def _is_intersect(self, height: int, figure, position: tuple[int, int]):
         if height == -1:
@@ -67,5 +57,4 @@ class Field:
         if np.any(field_slice & figure.map):
             return True
 
-        #self.slices.append(figure_map | self.map)
         return False
