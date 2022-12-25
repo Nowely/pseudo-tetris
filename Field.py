@@ -31,10 +31,9 @@ class Field:
         width, depth = position
 
         figure_map = np.zeros(self.map.shape, bool)
-        for height in range(self._height - 1, -1, -1):
-            current_figure_map = self._get_shift_map((width, depth, height), figure)
-            if not self._is_intersect(current_figure_map, height, figure, position):
-                figure_map = current_figure_map
+        for height in range(self._height):
+            if not self._is_intersect(height, figure, position):
+                return self._get_shift_map((width, depth, height), figure)
         return figure_map
 
     def _get_shift_map(self, shift: tuple[int, int, int], figure: Figure):
@@ -48,40 +47,25 @@ class Field:
         shift_map = width_map & depth_map & height_map
         return np.ndarray(self.map.shape, bool, shift_map)
 
-    def _is_intersect(self, figure_map: np.ndarray, height: int, figure, position: tuple[int, int]):
+    def _is_intersect(self, height: int, figure, position: tuple[int, int]):
         if height == -1:
             return True
 
-        figure_slice = figure_map[
-                       position[0]:position[0] + figure.width,
-                       position[1]:position[1] + figure.depth,
-                       height: height + figure.height
-                       ]
+        if position[0] + figure.width > self.map.shape[0]:
+            return True
+        if position[1] + figure.depth > self.map.shape[1]:
+            return True
+        if height + figure.height > self.map.shape[2]:
+            return True
+
         field_slice = self.map[
                       position[0]:position[0] + figure.width,
                       position[1]:position[1] + figure.depth,
                       height: height + figure.height
                       ]
 
-        if np.any(field_slice & figure_slice):
+        if np.any(field_slice & figure.map):
             return True
 
-        self.slices.append(figure_map | self.map)
-        return False
-
-    def _is_intersect1(self, figure_map: np.ndarray, height: int, figure, position: tuple[int, int]):
-        if height == -1:
-            return True
-
-        for d in range(figure.height):
-            if height + d >= figure_map.shape[2]:
-                self.slices.append(figure_map | self.map)
-                return True
-
-            figure_slice = figure_map[:, :, height + d]
-            field_slice = self.map[:, :, height + d]
-            if np.any(field_slice & figure_slice):
-                return True
-
-        self.slices.append(figure_map | self.map)
+        #self.slices.append(figure_map | self.map)
         return False
