@@ -33,7 +33,7 @@ class Field:
         figure_map = np.zeros(self.map.shape, bool)
         for height in range(self._height - 1, -1, -1):
             current_figure_map = self._get_shift_map((width, depth, height), figure)
-            if not self._is_intersect(current_figure_map, height, figure):
+            if not self._is_intersect(current_figure_map, height, figure, position):
                 figure_map = current_figure_map
         return figure_map
 
@@ -48,7 +48,28 @@ class Field:
         shift_map = width_map & depth_map & height_map
         return np.ndarray(self.map.shape, bool, shift_map)
 
-    def _is_intersect(self, figure_map: np.ndarray, height: int, figure):
+    def _is_intersect(self, figure_map: np.ndarray, height: int, figure, position: tuple[int, int]):
+        if height == -1:
+            return True
+
+        figure_slice = figure_map[
+                       position[0]:position[0] + figure.width,
+                       position[1]:position[1] + figure.depth,
+                       height: height + figure.height
+                       ]
+        field_slice = self.map[
+                      position[0]:position[0] + figure.width,
+                      position[1]:position[1] + figure.depth,
+                      height: height + figure.height
+                      ]
+
+        if np.any(field_slice & figure_slice):
+            return True
+
+        self.slices.append(figure_map | self.map)
+        return False
+
+    def _is_intersect1(self, figure_map: np.ndarray, height: int, figure, position: tuple[int, int]):
         if height == -1:
             return True
 
