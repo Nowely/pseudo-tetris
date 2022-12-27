@@ -1,6 +1,7 @@
 from Field import Field
 from Figure import Figure
-from Visualization import show, show_gif
+from Visualization import show, show_gif, show1
+import time
 
 
 # Show a small field 6x6x6 with determine figures
@@ -18,21 +19,25 @@ def show_small_field():
     field.add_figure(Figure(1, 2, 1), (4, 2))
 
     # Show plot with added figures
-    show(field.map)
+    show1(field.map)
     # Show gif with stages of adding figures
     # Gif can be saved with the save method
-    show_gif(field.slices)  # .save('pseudo-tetris.gif', writer='pillow', fps=5)
+    #show_gif(field.slices)  # .save('pseudo-tetris.gif', writer='pillow', fps=5)
 
 
 # Show a big field 20x20x20 with random figures
 def show_big_field():
-    field = Field(20, 20, 20)
+    field = Field(120, 100, 100)
     [field.add_random_figure() for _ in range(20)]
 
+    #print(field.map)
     show(field.map)
-    show_gif(field.slices)  # .save('pseudo-tetris 20x20x20.gif', writer='pillow', fps=30)
+    #show_gif(field.slices)  # .save('pseudo-tetris 20x20x20.gif', writer='pillow', fps=30)
 
 
 if __name__ == '__main__':
+    tic = time.perf_counter()
     show_small_field()
-    # show_big_field()
+    #show_big_field()
+    toc = time.perf_counter()
+    print(f"Computed for {toc - tic:0.4f} seconds")
