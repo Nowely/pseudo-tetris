@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
-import matplotlib.animation as animation
 import plotly.graph_objects as go
-from Figure import Figure
+import matplotlib.style as mplstyle
 
 
 def configure_plot(ax):
@@ -14,6 +13,11 @@ def configure_plot(ax):
 
 
 def show(data: np.ndarray):
+    matplotlib.use("TkAgg")
+    mplstyle.use('fast')
+    matplotlib.rcParams['path.simplify'] = True
+    matplotlib.rcParams['agg.path.chunksize'] = 10000
+    matplotlib.rcParams['path.simplify_threshold'] = 1.0
     ax = plt.figure().add_subplot(projection='3d')
     configure_plot(ax)
 
@@ -21,98 +25,50 @@ def show(data: np.ndarray):
     plt.show()
 
 
-def show1(data: np.ndarray):
-    # print(np.random.rand(6500, 3))
-    print(data[:, 0, 0].ravel())
-    # print(np.array(data[:, 0, 0]))
-    # print(data[0, :, 0])
-    # print(data[0, 0, :])
-    # print(data)
-    # fig = go.Figure(data=go.Isosurface(
-    #     x=data[:, 0, 0].astype(int),
-    #     y=data[0, :, 0].astype(int),
-    #     z=data[0, 0, :].astype(int),
-    #     value=[1, 2, 3, 4, 5, 6, 7, 8],
-    #     isomin=2,
-    #     isomax=6,
-    # ))
+x = [0, 0, 1, 1, 0, 0, 1, 1]
+y = [0, 1, 1, 0, 0, 1, 1, 0]
+z = [0, 0, 0, 0, 1, 1, 1, 1]
 
-    # print(data[:, 0, 0].ravel().astype(int))
-    # print(np.where(data[:, 0, 0]))
-    # print(np.where(data))
-    # print(np.argwhere(data))
-    a = np.argwhere(data)
-    # print(np.concatenate([0, 1, 0, 1, 0, 1, 0, 1],  map(lambda x: x+1, [0, 1, 0, 1, 0, 1, 0, 1])))
-    X, Y, Z = np.mgrid[0:15, 0:15, 0:15]
-    # print(X)
-    values = (1 <= X) * (X < 3) * (1 <= Y) * (Y < 3) * Z
-    print(values)
-    # fig = go.Figure(data=go.Isosurface(
-    #     x=X.flatten(),
-    #     y=Y.flatten(),
-    #     z=Z.flatten(),
-    #     value=(X * Y * Z).flatten(),
-    #     isomin=10,
-    #     isomax=40,
-    #     caps=dict(x_show=False, y_show=False)
-    # ))
-    x=[0, 0, 1, 1, 0, 0, 1, 1]
-    y=[0, 1, 1, 0, 0, 1, 1, 0]
-    z=[0, 0, 0, 0, 1, 1, 1, 1]
-    my3dmesh = go.Mesh3d(x=x, y=y, z=z, alphahull=0, intensity=np.linspace(1, 1, 8, endpoint=True), name='y')
-    fig = go.Figure(data=my3dmesh)
 
-    x=[1, 1, 2, 2, 1, 1, 2, 2]
-    y=[1, 2, 2, 1, 1, 2, 2, 1]
-    z=[1, 1, 1, 1, 2, 2, 2, 2]
-    my3dmesh1 = go.Mesh3d(x=x, y=y, z=z, alphahull=0, intensity=np.linspace(1, 1, 8, endpoint=True), name='y')
-    fig.add_trace(my3dmesh1)
-    #fig.show()
+def show_by_3d_mesh(data: np.ndarray):
+    def create_mesh_cube_by_dot(dot):
+        x1, y1, z1 = dot
+        my3dmesh = go.Mesh3d(
+            x=list(np.asarray(x) + x1),
+            y=list(np.asarray(y) + y1),
+            z=list(np.asarray(z) + z1),
+            alphahull=0, intensity=np.linspace(1, 1, 8, endpoint=True), name='y')
+        return my3dmesh
 
-    def _get_shift_map(self, shift: tuple[int, int, int], figure: Figure):
-        X, Y, Z = np.indices(self.map.shape)
-        shift_width, shift_depth, height_shift = shift
-
-        width_map = (shift_width <= X) & (X < figure.width + shift_width)
-        depth_map = (shift_depth <= Y) & (Y < figure.depth + shift_depth)
-        height_map = (height_shift <= Z) & (Z < figure.height + height_shift)
-
-        shift_map = width_map & depth_map & height_map
-        return np.ndarray(self.map.shape, bool, shift_map)
-
-    # fig = go.Figure(data=go.Isosurface(
-    #     x=[0, 1, 0, 1, 0, 1, 0, 1],
-    #     y=[0, 0, 1, 1, 0, 0, 1, 1],
-    #     z=[0, 0, 0, 0, 1, 1, 1, 1],
-    #     value=[2.5, 2, 2, 2, 2, 2, 2, 2],
-    #     surface=dict(count=3, fill=0.7, pattern='odd'),
-    #     caps=dict(x_show=True, y_show=True),
-    # ))
-
-    # marker_data = go.Scatter3d(
-    #     x=a[:, 0],
-    #     y=a[:, 1],
-    #     z=a[:, 2],
-    #     marker=go.scatter3d.Marker(size=30),
-    #     mode='markers'
-    # )
-    # fig = go.Figure(data=marker_data)
+    XYZ = np.argwhere(data)
+    fig = go.Figure()
+    for xyz in XYZ:
+        fig.add_trace(create_mesh_cube_by_dot(xyz))
     fig.show()
 
 
-def show_gif(slices: list[np.ndarray], interval: int = 200):
-    def update_plot(num):
-        ax.clear()
-        configure_plot(ax)
-        ax.voxels(slices[num], edgecolors='#BFAB6E')
+def show_by_3d_scatter(data: np.ndarray):
+    def create_point_cloud(dot):
+        x1, y1, z1 = dot
+        x, y, z = np.mgrid[x1:x1 + 0.9:8j, y1:y1 + 0.9:8j, z1:z1 + 0.9:8j]
+        return (x.flatten(), y.flatten(), z.flatten())
 
-    # Open gif in a modal window. Actual for PyCharm.
-    matplotlib.use("TkAgg")
+    a = np.argwhere(data)
+    X = []
+    Y = []
+    Z = []
+    for l in a:
+        x, y, z = create_point_cloud(l)
+        X.extend(x)
+        Y.extend(y)
+        Z.extend(z)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
-
-    ani = animation.FuncAnimation(fig, update_plot, interval=interval, frames=len(slices))
-    plt.show()
-
-    return ani
+    marker_data = go.Scatter3d(
+        x=X,
+        y=Y,
+        z=Z,
+        marker=go.scatter3d.Marker(size=3),
+        mode='markers'
+    )
+    fig = go.Figure(data=marker_data)
+    fig.show()
